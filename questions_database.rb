@@ -2,7 +2,7 @@ require "sqlite3"
 require "singleton"
 
 class QuestionsDatabase < SQLite3::Database
-  include singleton
+  include Singleton
 
   def initialize
     super("questions.db")
@@ -13,8 +13,19 @@ end
 
 class Users
   def self.all
-    data = QuestionsDatabase.instance.execute('SELECT * FROM users')
+    data = QuestionsDatabase.instance.execute("SELECT * FROM users")
     data.map { |datum| Users.new(datum) }
+  end
+
+  def self.find_by_name(fname, lname)
+    user = QuestionsDatabase.instance.execute(<<-SQL, fname, lname)
+    SELECT
+        *
+    FROM
+        users
+    WHERE
+        fname = ? AND lname = ?;
+    SQL
   end
 
   def self.find_by_id(id)
@@ -36,9 +47,8 @@ class Users
 end
 
 class Questions
-
   def self.all
-    data = QuestionsDatabase.instance.execute('SELECT * FROM questions')
+    data = QuestionsDatabase.instance.execute("SELECT * FROM questions")
     data.map { |datum| Questions.new(datum) }
   end
 
@@ -64,7 +74,6 @@ class Questions
     SQL
   end
 
-
   def initialize(option)
     @id = option["id"]
     @title = option["title"]
@@ -74,9 +83,8 @@ class Questions
 end
 
 class QuestionFollows
-
   def self.all
-    data = QuestionsDatabase.instance.execute('SELECT * FROM QuestionFollows')
+    data = QuestionsDatabase.instance.execute("SELECT * FROM QuestionFollows")
     data.map { |datum| QuestionFollows.new(datum) }
   end
 
@@ -90,6 +98,7 @@ class QuestionFollows
         id = ?;
     SQL
   end
+
   def initialize(option)
     @id = option["id"]
     @user_id = option["user_id"]
@@ -98,9 +107,8 @@ class QuestionFollows
 end
 
 class Replies
-
   def self.all
-    data = QuestionsDatabase.instance.execute('SELECT * FROM replies')
+    data = QuestionsDatabase.instance.execute("SELECT * FROM replies")
     data.map { |datum| Replies.new(datum) }
   end
 
@@ -137,7 +145,6 @@ class Replies
     SQL
   end
 
-
   def initialize(option)
     @id = option["id"]
     @question_id = option["question_id"]
@@ -149,7 +156,7 @@ end
 
 class QuestionLikes
   def self.all
-    data = QuestionsDatabase.instance.execute('SELECT * FROM question_likes')
+    data = QuestionsDatabase.instance.execute("SELECT * FROM question_likes")
     data.map { |datum| QuestionLikes.new(datum) }
   end
 
@@ -163,6 +170,7 @@ class QuestionLikes
         id = ?;
     SQL
   end
+
   def initialize(option)
     @id = option["id"]
     @user_id = option["user_id"]
