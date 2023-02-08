@@ -15,4 +15,5 @@ CREATE TABLE questions (
 CREATE TABLE question_follows(
     
 
+
 );
